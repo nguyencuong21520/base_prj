@@ -12,6 +12,10 @@ app.use(cors({ origin: env.clientUrl }));
 app.use(express.json());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
+app.get("/", (req, res) => {
+    res.json({ message: "Welcome to the API" })
+})
+
 app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRouter);
 app.use('/api/profile', profileRouter);
