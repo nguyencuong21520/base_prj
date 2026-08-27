@@ -8,13 +8,36 @@ import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 
+// Accepts digits with optional leading + and common separators (spaces, dashes, parentheses).
+const phoneRegex = /^\+?[\d\s().-]+$/;
+
+// Empty optional fields come through as '' from the inputs; treat '' as "not provided"
+// so the value is stripped before hitting the backend (which rejects empty strings).
+const optionalTrimmed = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v === '' ? undefined : v));
+
 const schema = z.object({
-  displayName: z.string().max(60, 'Max 60 characters').optional(),
-  bio: z.string().max(200, 'Max 200 characters').optional(),
-  phone: z.string().max(20, 'Max 20 characters').optional(),
+  displayName: z
+    .string()
+    .trim()
+    .min(2, 'Display name must be at least 2 characters')
+    .max(100, 'Max 100 characters'),
+  bio: optionalTrimmed.pipe(z.string().max(200, 'Max 200 characters').optional()),
+  phone: optionalTrimmed.pipe(
+    z
+      .string()
+      .min(7, 'Phone must be at least 7 characters')
+      .max(20, 'Max 20 characters')
+      .regex(phoneRegex, 'Enter a valid phone number')
+      .optional(),
+  ),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.input<typeof schema>;
+type SubmitValues = z.output<typeof schema>;
 
 interface ProfileEditFormProps {
   defaultValues: FormValues;
@@ -24,7 +47,7 @@ interface ProfileEditFormProps {
 export const ProfileEditForm = ({ defaultValues, onSuccess }: ProfileEditFormProps) => {
   const [saving, setSaving] = useState(false);
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues, unknown, SubmitValues>({
     resolver: zodResolver(schema),
     defaultValues,
   });
