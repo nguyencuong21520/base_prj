@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node build/server.js"
+    "start": "node build/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +28,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@vercel/node": "^5.3.25",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -35,7 +36,12 @@
     "@types/multer": "^2.1.0",
     "@types/node": "^25.5.2",
     "@types/nodemailer": "^8.0.0",
+    "@types/supertest": "^7.2.1",
+    "@vercel/node": "^5.3.25",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^5.0.0"
   }
 }

@@ -44,6 +44,24 @@ npm install
 npm run dev
 ```
 
+## Run Tests
+
+Both packages use Vitest.
+
+```bash
+cd BE && npm test      # unit + API integration tests (in-memory MongoDB)
+cd FE && npm test      # unit + component tests (jsdom + React Testing Library)
+```
+
+Use `npm run test:watch` while developing.
+
+- `BE/tests/unit`: utils, validators, middlewares (no database).
+- `BE/tests/integration`: full HTTP flows through `src/app.ts` via supertest. Each
+  test file boots its own throwaway MongoDB (`mongodb-memory-server`, binary is
+  downloaded once) and collections are wiped between tests. SMTP and Cloudinary
+  are replaced by in-memory recorders, so no test sends email or uploads images.
+- `FE`: tests are colocated as `*.test.ts(x)` next to the code under test.
+
 ## API Base URL
 
 - Backend: `http://localhost:5000`
