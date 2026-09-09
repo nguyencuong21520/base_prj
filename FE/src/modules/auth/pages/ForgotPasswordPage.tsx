@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { KeyRound, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '../api/auth.api';
+import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
@@ -40,8 +41,8 @@ export const ForgotPasswordPage = () => {
       setEmail(values.email);
       setStep('reset');
       toast.success('Reset token sent to your email.');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? 'Something went wrong');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Something went wrong'));
     }
   });
 
@@ -50,8 +51,8 @@ export const ForgotPasswordPage = () => {
       await authApi.resetPassword(email || values.email || '', values.token, values.newPassword);
       toast.success('Password reset successful. You can login now.');
       setStep('request');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? 'Something went wrong');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Something went wrong'));
     }
   });
 

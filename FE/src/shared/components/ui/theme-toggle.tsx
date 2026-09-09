@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { getTheme, setTheme, type Theme } from '@/shared/lib/utils';
 import { Button } from '@/shared/components/ui/button';
@@ -18,11 +18,8 @@ const themeLabels: Record<Theme, string> = {
 };
 
 export function ThemeToggle() {
-  const [current, setCurrent] = useState<Theme>('system');
-
-  useEffect(() => {
-    setCurrent(getTheme());
-  }, []);
+  // Lazy initialiser: reads localStorage once, on the first render.
+  const [current, setCurrent] = useState<Theme>(getTheme);
 
   const cycle = () => {
     const next = themes[(themes.indexOf(current) + 1) % themes.length];

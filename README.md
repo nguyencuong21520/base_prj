@@ -62,6 +62,10 @@ Use `npm run test:watch` while developing.
   are replaced by in-memory recorders, so no test sends email or uploads images.
 - `FE`: tests are colocated as `*.test.ts(x)` next to the code under test.
 
+Every push and pull request runs both suites on GitHub Actions
+(`.github/workflows/ci.yml`), plus `npm run lint` on the frontend and a
+typecheck on each package.
+
 ## API Base URL
 
 - Backend: `http://localhost:5000`

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import { profileApi } from '@/modules/profile/api/profile.api';
+import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 
 interface AvatarUploadProps {
@@ -36,8 +37,8 @@ export const AvatarUpload = ({ currentAvatarUrl, userInitials = '??', onUploadSu
       setPreviewUrl(newUrl);
       onUploadSuccess(newUrl);
       toast.success('Avatar updated successfully.');
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Failed to upload avatar.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to upload avatar.'));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';

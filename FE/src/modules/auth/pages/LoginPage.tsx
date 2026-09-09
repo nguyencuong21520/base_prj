@@ -7,6 +7,7 @@ import { KeyRound, Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '../api/auth.api';
 import { tokenStore } from '../store/token.store';
+import { getApiErrorBody, getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
@@ -44,14 +45,14 @@ export const LoginPage = () => {
       setEmail(values.email);
       setStep('verify');
       toast.success('OTP has been sent to your email.');
-    } catch (error: any) {
-      const requiresOtp = Boolean(error?.response?.data?.requiresOtp);
-      if (requiresOtp) {
-        setEmail(error.response.data.email ?? values.email);
+    } catch (error) {
+      const body = getApiErrorBody(error);
+      if (body?.requiresOtp) {
+        setEmail(body.email ?? values.email);
         setStep('verify');
         toast.info('OTP required. Check your email.');
       } else {
-        toast.error(error?.response?.data?.message ?? 'Something went wrong');
+        toast.error(body?.message ?? 'Something went wrong');
       }
     } finally {
       setLoading(false);
@@ -67,8 +68,8 @@ export const LoginPage = () => {
       tokenStore.set(response.data.token);
       toast.success('Logged in successfully.');
       navigate('/');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? 'Invalid OTP');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Invalid OTP'));
       setOtp('');
     } finally {
       setLoading(false);

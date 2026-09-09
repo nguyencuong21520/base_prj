@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/modules/auth/api/auth.api';
 import { tokenStore } from '@/modules/auth/store/token.store';
@@ -18,19 +18,40 @@ export const ProfilePage = () => {
   const [user, setUser] = useState<ProfileUser | null>(null);
   const navigate = useNavigate();
 
-  const fetchUser = async () => {
+  /**
+   * Loads the current user and returns it, or `null` when the token is no longer
+   * accepted (in which case the visitor is sent to the logout route).
+   * It deliberately does not touch state, so callers decide when to store it.
+   */
+  const fetchUser = useCallback(async (): Promise<ProfileUser | null> => {
     try {
       const res = await authApi.getMe();
-      setUser(res.data as ProfileUser);
+      return res.data as ProfileUser;
     } catch {
       tokenStore.clear();
       navigate('/logout');
+      return null;
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
-    void fetchUser();
-  }, []);
+    let active = true;
+
+    void fetchUser().then((next) => {
+      if (active && next) setUser(next);
+    });
+
+    // Guards against storing a response that arrives after unmount.
+    return () => {
+      active = false;
+    };
+  }, [fetchUser]);
+
+  const reloadUser = () => {
+    void fetchUser().then((next) => {
+      if (next) setUser(next);
+    });
+  };
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '??';
 
@@ -70,7 +91,7 @@ export const ProfilePage = () => {
                   bio: user.bio ?? '',
                   phone: user.phone ?? '',
                 }}
-                onSuccess={fetchUser}
+                onSuccess={reloadUser}
               />
             ) : (
               <p className="text-sm text-muted-foreground">Loading…</p>

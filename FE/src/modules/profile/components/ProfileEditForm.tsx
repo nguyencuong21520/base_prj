@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { profileApi } from '@/modules/profile/api/profile.api';
+import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -60,8 +61,8 @@ export const ProfileEditForm = ({ defaultValues, onSuccess }: ProfileEditFormPro
       await profileApi.updateProfile(values);
       toast.success('Profile updated successfully.');
       onSuccess();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message ?? 'Failed to update profile.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update profile.'));
     } finally {
       setSaving(false);
     }

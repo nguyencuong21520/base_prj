@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { KeyRound, Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '../api/auth.api';
+import { getApiErrorMessage } from '@/shared/api/api-error';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
@@ -36,8 +37,8 @@ export const RegisterPage = () => {
       setEmail(values.email);
       setStep('verify');
       toast.success('OTP sent to your email.');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? 'Something went wrong');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Something went wrong'));
     } finally {
       setLoading(false);
     }
@@ -51,8 +52,8 @@ export const RegisterPage = () => {
       await authApi.verifyRegisterOtp(email, otp);
       toast.success('Account verified! You can login now.');
       navigate('/login');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? 'Invalid OTP');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Invalid OTP'));
       setOtp('');
     } finally {
       setLoading(false);
