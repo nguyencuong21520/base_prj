@@ -26,7 +26,8 @@ A MERN starter for students. Two apps in one repository, each with its own `pack
 
 Without SMTP settings, emails (OTP codes, reset codes) are printed in the backend terminal in development;
 in production sending answers 503 instead. Without Cloudinary settings, image upload answers 503 and everything
-else works. `npm run seed` refuses to run with `NODE_ENV=production`. Behind a proxy, set `TRUST_PROXY=1`.
+else works. Without `GEMINI_API_KEY`, the AI chat answers 503. `npm run seed` refuses to run with
+`NODE_ENV=production`. Behind a proxy, set `TRUST_PROXY=1`. Tests never read `BE/.env`: their variables are in `BE/vitest.config.mts`.
 
 ## Adding a feature (follow these steps in order)
 
@@ -62,6 +63,20 @@ and `FE/src/modules/notes/`.
 - Never return `password`, OTP or reset fields. The User model strips them in `toJSON`; keep it that way for new private fields.
   `.lean()` and `aggregate()` skip `toJSON`: when you use them on users, `.select()` the public fields explicitly.
 - Do not change the OTP functions (`utils/otp.ts`, `createUserWithOtp`, `issueOtpForUser`, `issueResetToken`, and the OTP/reset handlers in `auth.controller.ts`).
+
+## AI chat bot (Google Gemini, free tier)
+
+A sample chat bot to customize, not a finished product:
+
+- Backend: `POST /api/chat` with `{ messages: [{ role: 'user' | 'model', text }] }` → `{ reply }`. Stateless: the client sends
+  the conversation each time. Signed-in users only, 10 messages per minute per user.
+- Personality: `BE/src/config/chatbot.ts` (system prompt, thinking level, history length; Gemini 3.5 ignores temperature). Gemini calls: `BE/src/services/ai.service.ts`
+  (`generateChatReply`, uses `@google/genai`; never the deprecated `@google/generative-ai`).
+- Frontend: `FE/src/modules/chat/` — texts and suggested questions in `chat.config.ts`, conversation state in `hooks/use-chat.ts`.
+- Config: `GEMINI_API_KEY` (free at https://aistudio.google.com/apikey) and `GEMINI_MODEL` (default `gemini-3.5-flash-lite`, thinking level `LOW`) in `BE/.env`.
+  Without a key the endpoint answers 503. Free-tier quota errors answer 429. Never put the key in frontend code.
+- Tests never call Google: `@google/genai` is mocked in `BE/tests/setup/mock-external-services.ts`; control replies and
+  errors with `BE/tests/helpers/gemini-recorder.ts`.
 
 ## Frontend rules
 

@@ -1,7 +1,9 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-dotenv.config();
+// Tests get their variables from vitest.config.mts only, so a developer's own
+// BE/.env (real SMTP, Gemini key, ...) never changes how the tests behave.
+if (process.env.NODE_ENV !== 'test') dotenv.config({ quiet: true });
 
 const PLACEHOLDER_JWT_SECRET = 'change_this_secret';
 
@@ -28,7 +30,10 @@ const envSchema = z
     RESET_TOKEN_EXPIRES_MINUTES: z.coerce.number().positive().default(15),
     CLOUDINARY_CLOUD_NAME: optionalString,
     CLOUDINARY_API_KEY: optionalString,
-    CLOUDINARY_API_SECRET: optionalString
+    CLOUDINARY_API_SECRET: optionalString,
+    // Free key: https://aistudio.google.com/apikey
+    GEMINI_API_KEY: optionalString,
+    GEMINI_MODEL: z.string().trim().min(1).default('gemini-3.5-flash-lite')
   })
   .superRefine((value, ctx) => {
     const weakSecret = value.JWT_SECRET === PLACEHOLDER_JWT_SECRET || value.JWT_SECRET.length < 32;
@@ -70,7 +75,9 @@ export const parseEnv = (raw: RawEnv) => {
     resetTokenExpiresMinutes: v.RESET_TOKEN_EXPIRES_MINUTES,
     cloudinaryCloudName: v.CLOUDINARY_CLOUD_NAME,
     cloudinaryApiKey: v.CLOUDINARY_API_KEY,
-    cloudinaryApiSecret: v.CLOUDINARY_API_SECRET
+    cloudinaryApiSecret: v.CLOUDINARY_API_SECRET,
+    geminiApiKey: v.GEMINI_API_KEY,
+    geminiModel: v.GEMINI_MODEL
   };
 };
 

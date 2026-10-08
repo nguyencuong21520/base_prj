@@ -48,7 +48,38 @@ Sau khi tạo, module có sẵn field `title`, `content`, `tags`. Bạn (hoặc 
 
 Lệnh sẽ từ chối những tên trùng với code có sẵn, ví dụ `class`, `page`, `query`, `math`, hay tên chứa chữ `note`. Khi đó chỉ cần chọn tên khác, như `classroom` hoặc `math-lesson`. Lệnh `--remove` chỉ xoá những file do chính lệnh tạo ra, và giữ lại file bạn tự thêm vào.
 
-## 4. Prompt mẫu
+## 4. AI chat bot mẫu (Gemini miễn phí)
+
+Trang **AI Chat** (http://localhost:5173/chat) là một chatbot mẫu dùng Google Gemini, gói miễn phí. Nó được viết đơn giản để bạn sửa thành bot của dự án mình, ví dụ gia sư toán, trợ lý bán hàng hay bot đố vui.
+
+**Bật chatbot:**
+
+1. Vào https://aistudio.google.com/apikey, đăng nhập Google và bấm **Create API key**. Không cần thẻ thanh toán.
+2. Dán key vào `BE/.env`: `GEMINI_API_KEY=...` (giữ nguyên `GEMINI_MODEL=gemini-3.5-flash-lite`).
+3. Tắt rồi chạy lại `npm run dev`.
+
+> ⚠️ Không đưa API key vào code frontend, lên GitHub, hay gửi cho người khác. Key chỉ nằm trong `BE/.env`, và file này không được commit.
+
+**Sửa bot cho đúng dự án:**
+
+| Muốn đổi | Sửa file |
+|---|---|
+| Bot là ai, trả lời thế nào, được/không được làm gì | `BE/src/config/chatbot.ts` → `systemPrompt` |
+| Bot suy nghĩ kỹ đến đâu trước khi trả lời | `BE/src/config/chatbot.ts` → `thinkingLevel` (`LOW` nhanh, tiết kiệm lượt miễn phí; `MEDIUM`/`HIGH` trả lời câu khó tốt hơn nhưng chậm hơn) |
+| Bot nhớ bao nhiêu tin nhắn gần nhất | `BE/src/config/chatbot.ts` → `historyLimit` |
+| Tên bot, lời chào, câu hỏi gợi ý | `FE/src/modules/chat/chat.config.ts` |
+| Giao diện khung chat | `FE/src/modules/chat/components/` |
+
+**Giới hạn của gói miễn phí:** Google chỉ cho một số request mỗi phút và mỗi ngày, con số này thay đổi theo thời gian. Khi hết lượt, bot báo *"The free AI quota is used up for now"*, chỉ cần đợi một lúc. Mỗi người dùng cũng chỉ được gửi 10 tin mỗi phút để không ai dùng hết lượt của cả nhóm.
+
+**Prompt mẫu để nhờ AI sửa chatbot:**
+
+- > Đổi chatbot thành gia sư Toán lớp 10: chỉ trả lời câu hỏi về Toán, giải thích từng bước, không đưa đáp án ngay mà gợi ý trước. Sửa `systemPrompt` trong `BE/src/config/chatbot.ts`, đổi tên bot và câu hỏi gợi ý trong `chat.config.ts`.
+- > Cho chatbot trả lời dựa trên danh sách `product` trong database: trước khi gọi Gemini, lấy tối đa 20 sản phẩm và đưa vào system prompt. Thêm test.
+- > Lưu lịch sử chat vào MongoDB cho từng người dùng, để tải lại trang vẫn còn. Làm theo cách module `notes` làm (model, service, route, test).
+- > Hiển thị câu trả lời của bot dạng Markdown (in đậm, danh sách) thay vì chữ thường.
+
+## 5. Prompt mẫu
 
 Copy rồi sửa phần trong ngoặc cho đúng dự án của bạn.
 
@@ -76,7 +107,7 @@ Copy rồi sửa phần trong ngoặc cho đúng dự án của bạn.
 8. **Giải thích code**
    > Giải thích cho tôi luồng từ lúc bấm "New note" tới lúc dữ liệu được lưu vào MongoDB, đi qua những file nào.
 
-## 5. Mẹo khi vibe coding
+## 6. Mẹo khi vibe coding
 
 - **Mỗi lần chỉ nhờ một việc nhỏ.** Ví dụ "thêm field price", đừng gộp kiểu "làm cả trang bán hàng".
 - **Luôn kết thúc bằng `/check`.** Đừng tin AI nói "xong rồi" khi test chưa chạy.
@@ -85,7 +116,7 @@ Copy rồi sửa phần trong ngoặc cho đúng dự án của bạn.
 - **Kiểm tra dữ liệu trả về**: API không bao giờ được trả mật khẩu hay mã OTP. Nếu thấy thì báo lỗi ngay.
 - Khi AI định viết lại `App.tsx`, tự gọi API bằng `useEffect`, hoặc tự viết `try/catch` trả lỗi, nhắc nó: *"Làm theo AGENTS.md"*.
 
-## 6. Tự kiểm tra trước khi nộp
+## 7. Tự kiểm tra trước khi nộp
 
 - [ ] `npm test` chạy xanh
 - [ ] `npm run lint` không còn lỗi

@@ -28,6 +28,7 @@ src/
 ├── modules/
 │   ├── auth/                # api/, components/ (AuthLayout, ProtectedRoute), hooks/ (use-current-user),
 │   │                        # pages/, store/ (token.store), types/
+│   ├── chat/                # sample AI chat: chat.config.ts (texts), hooks/use-chat.ts, components/, pages/ChatPage
 │   ├── home/                # home.module.ts, pages/HomePage
 │   ├── notes/               # REFERENCE MODULE: api/, hooks/, components/, pages/, types/, notes.module.ts
 │   └── profile/             # profile.module.ts, api/, components/ (AvatarUpload, ProfileEditForm, SecuritySettings), pages/

@@ -32,7 +32,7 @@ const fail = (message) => {
 
 const KEBAB = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 // Names (singular or plural) owned by the base project: never generate or remove them.
-const RESERVED = new Set(['note', 'notes', 'user', 'users', 'auth', 'profile', 'profiles', 'home', 'app', 'apps', 'common', 'shared', 'test', 'tests']);
+const RESERVED = new Set(['note', 'notes', 'user', 'users', 'auth', 'profile', 'profiles', 'home', 'chat', 'chats', 'ai', 'app', 'apps', 'common', 'shared', 'test', 'tests']);
 const GENERATED_HEADER = '// Generated from the notes reference module by `npm run gen:module`.\n';
 
 const read = (path) => readFileSync(join(root, path), 'utf8');

@@ -18,7 +18,9 @@ export default defineConfig({
       RESET_TOKEN_EXPIRES_MINUTES: '15',
       CLOUDINARY_CLOUD_NAME: 'test-cloud',
       CLOUDINARY_API_KEY: 'test-key',
-      CLOUDINARY_API_SECRET: 'test-secret'
+      CLOUDINARY_API_SECRET: 'test-secret',
+      GEMINI_API_KEY: 'test-gemini-key',
+      GEMINI_MODEL: 'test-model'
     },
     globalSetup: ['./tests/setup/download-mongod.ts'],
     setupFiles: ['./tests/setup/mock-external-services.ts', './tests/setup/in-memory-database.ts'],
