@@ -1,6 +1,6 @@
 # Frontend Architecture & Conventions
 
-> Instruction doc for AI agents and developers. Read this before adding or changing frontend code. Follow these patterns exactly — do not introduce new architectural styles without reason. The reference feature is `src/modules/notes/`.
+> Instruction doc for AI agents and developers. Read this before adding or changing frontend code. Follow these patterns exactly — do not introduce new architectural styles without reason. The reference feature is `src/modules/notes/`; the reference admin page is `src/modules/admin/pages/AdminUsersPage.tsx`. This is a base project for students: keep code simple, reuse what exists, and update this file when a convention changes.
 
 ## Stack
 
@@ -28,7 +28,10 @@ src/
 ├── modules/
 │   ├── auth/                # api/, components/ (AuthLayout, ProtectedRoute), hooks/ (use-current-user),
 │   │                        # pages/, store/ (token.store), types/
-│   ├── chat/                # sample AI chat: chat.config.ts (texts), hooks/use-chat.ts, components/, pages/ChatPage
+│   ├── admin/               # admin area: admin.module.ts (adminRoutes), api/, hooks/use-admin.ts,
+│   │                        # components/ (user-columns, UserEditDialog), pages/ (AdminDashboardPage, AdminUsersPage)
+│   ├── chat/                # sample AI chat: chat.module.ts (widget), chat.config.ts (texts), hooks/use-chat.ts,
+│   │                        # components/ (ChatWidget = floating button + popup, ChatPanel, ChatComposer)
 │   ├── home/                # home.module.ts, pages/HomePage
 │   ├── notes/               # REFERENCE MODULE: api/, hooks/, components/, pages/, types/, notes.module.ts
 │   └── profile/             # profile.module.ts, api/, components/ (AvatarUpload, ProfileEditForm, SecuritySettings), pages/
@@ -36,7 +39,8 @@ src/
 │   ├── api/                 # http.ts (axios), query-client.ts, api-error.ts, types.ts (Paginated<T>)
 │   ├── components/          # page-header, empty-state, error-state, loading-state, confirm-dialog,
 │   │   │                    # form-field, pagination
-│   │   ├── layout/          # AppLayout (protected shell, navigation)
+│   │   ├── data-table/      # DataTable, SearchInput, FilterSelect, TableToolbar (list and admin pages)
+│   │   ├── layout/          # AppLayout (top navigation + module widgets), AdminLayout (sidebar, /admin)
 │   │   └── ui/              # shadcn/ui primitives (button, input, dialog, switch, ...)
 │   ├── hooks/               # use-debounce, use-pagination
 │   └── lib/utils.ts         # cn(), theme helpers
@@ -120,7 +124,9 @@ export const notesModule: AppModule = {
 export const appModules: AppModule[] = [homeModule, notesModule, profileModule];
 ```
 
-Every registered route renders inside `ProtectedRoute` + `AppLayout`. Add `roles: ['admin']` to a route or nav item to restrict it; `ProtectedRoute roles` sends other users to `/`. Public auth pages (`/login`, `/register`, `/forgot-password`) live in `App.tsx` under `AuthLayout`. Page number lives in the URL via `usePagination()` (`?page=2`).
+Every registered route renders inside `ProtectedRoute` + `AppLayout`. A module may also add:
+- `adminRoutes` (paths under `/admin`) and `adminNavItems`: rendered inside `AdminLayout` (sidebar). **Base default: every signed-in account can open the admin area.** To allow admins only, wrap `AdminLayout` in `<ProtectedRoute roles={['admin']}>` in `App.tsx` and use `requireRole('admin')` in `BE/src/routes/admin.route.ts`.
+- `widgets`: components rendered on every page of `AppLayout`, for floating UI such as the chat button (`chatModule.widgets = [ChatWidget]`). A widget positions itself (`fixed bottom-4 right-4 ...`) and keeps its own state. Add `roles: ['admin']` to a route or nav item to restrict it; `ProtectedRoute roles` sends other users to `/`. Public auth pages (`/login`, `/register`, `/forgot-password`) live in `App.tsx` under `AuthLayout`. Page number lives in the URL via `usePagination()` (`?page=2`).
 
 ### 7. Forms (React Hook Form + Zod + `FormField`)
 
@@ -147,7 +153,10 @@ if (query.data.items.length === 0) return <EmptyState title="No notes yet" actio
 ```
 Use `PageHeader` for the title row, `Pagination` under lists, `ConfirmDialog` before deleting, `useDebounce` for search boxes.
 
-### 9. UI, styling, notifications
+### 9. Tables and admin pages
+`DataTable` takes a column config (`{ id, header, cell, sortKey? }`), rows and `getRowId`. Sorting is done by the backend: pass `sort` + `onSortChange` (headers cycle `field` → `-field`). Pass `selectedIds` + `onSelectedIdsChange` for checkboxes and bulk actions; `isRowSelectable` disables rows. Put `SearchInput` (debounced) and `FilterSelect` (`''` = all) in a `TableToolbar`. `useListParams({ sort })` keeps `q`, filters, `sort` and `page` in the URL and resets the page when a filter changes. `AdminUsersPage` shows all of it together.
+
+### 10. UI, styling, notifications
 - shadcn/ui primitives in `shared/components/ui/` — reuse them; compose classes with `cn()`.
 - Tailwind theme tokens (`bg-background`, `text-muted-foreground`, `text-destructive`, ...) — no raw colors, so dark mode works.
 - `toast.success` / `toast.error` from `sonner`; `<Toaster />` is mounted once in `main.tsx`.
