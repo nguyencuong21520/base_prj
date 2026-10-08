@@ -54,6 +54,13 @@ describe('AppLayout', () => {
     expect(tokenStore.get()).toBe('jwt-value');
   });
 
+  it('renders the widgets registered by modules', async () => {
+    getMe.mockResolvedValue({ _id: '1', email: 'a@b.com', role: 'user' });
+    const FloatingThing = () => <div>floating widget</div>;
+    renderWithProviders(<AppLayout navItems={navItems} widgets={[FloatingThing]} />, { route: '/' });
+    expect(await screen.findByText('floating widget')).toBeInTheDocument();
+  });
+
   it('logs out from the header button', async () => {
     getMe.mockResolvedValue({ _id: '1', email: 'a@b.com', role: 'user' });
     renderLayout();

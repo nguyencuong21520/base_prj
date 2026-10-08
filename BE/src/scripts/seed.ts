@@ -13,9 +13,23 @@ export const DEMO_ACCOUNTS = [
   { email: 'admin@example.com', password: 'admin1234', displayName: 'Demo Admin', role: 'admin' }
 ] as const;
 
+/** Extra regular accounts so the admin user table has enough rows to search and paginate. */
+export const DEMO_STUDENTS = Array.from({ length: 12 }, (_, index) => {
+  const number = String(index + 1).padStart(2, '0');
+  return {
+    email: `student${number}@example.com`,
+    password: 'student1234',
+    displayName: `Student ${number}`,
+    role: 'user',
+    // A few unverified accounts make the "verified" filter visible in the demo.
+    isEmailVerified: index % 4 !== 3
+  } as const;
+});
+
 export const seedDemoAccounts = async () => {
   const created: string[] = [];
-  for (const account of DEMO_ACCOUNTS) {
+  const accounts = [...DEMO_ACCOUNTS.map((account) => ({ ...account, isEmailVerified: true })), ...DEMO_STUDENTS];
+  for (const account of accounts) {
     const exists = await UserModel.exists({ email: account.email });
     if (exists) continue;
 
@@ -24,7 +38,7 @@ export const seedDemoAccounts = async () => {
       password: await hashPassword(account.password),
       displayName: account.displayName,
       role: account.role,
-      isEmailVerified: true
+      isEmailVerified: account.isEmailVerified
     });
     created.push(account.email);
   }
@@ -38,6 +52,7 @@ const run = async () => {
   const created = await seedDemoAccounts();
   console.log(created.length ? `Created: ${created.join(', ')}` : 'Demo accounts already exist.');
   for (const account of DEMO_ACCOUNTS) console.log(`  ${account.email} / ${account.password}`);
+  console.log(`  + ${DEMO_STUDENTS.length} students: student01..${DEMO_STUDENTS.length}@example.com / student1234`);
   await mongoose.disconnect();
 };
 

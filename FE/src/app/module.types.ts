@@ -19,6 +19,13 @@ export interface NavItem {
 
 /** What a feature module contributes to the app. Register it in `src/app/modules.ts`. */
 export interface AppModule {
+  /** Pages inside the main app layout (top navigation). */
   routes: ModuleRoute[];
   navItems?: NavItem[];
+  /** Pages inside the admin area (`/admin/...`, sidebar layout). */
+  adminRoutes?: ModuleRoute[];
+  /** Links in the admin sidebar. */
+  adminNavItems?: NavItem[];
+  /** Components shown on every page of the main app, e.g. the floating chat button. */
+  widgets?: ComponentType[];
 }

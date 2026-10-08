@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '@/test/render-with-providers';
 import { chatConfig } from '../chat.config';
-import { ChatPage } from './ChatPage';
+import { ChatWidget } from './ChatWidget';
 
 const send = vi.fn();
 const toastError = vi.fn();
@@ -13,7 +13,12 @@ vi.mock('../api/chat.api', () => ({
 
 vi.mock('sonner', () => ({ toast: { error: (msg: string) => toastError(msg), success: vi.fn() } }));
 
-const renderPage = () => renderWithProviders(<ChatPage />, { route: '/chat' });
+/** Renders the floating button and opens the popup. */
+const renderPage = () => {
+  const view = renderWithProviders(<ChatWidget />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open chat' }));
+  return view;
+};
 
 const type = (text: string) => fireEvent.change(screen.getByLabelText('Message'), { target: { value: text } });
 
@@ -22,7 +27,28 @@ beforeEach(() => {
   toastError.mockReset();
 });
 
-describe('ChatPage', () => {
+describe('ChatWidget', () => {
+  it('shows only the floating button until it is opened', () => {
+    renderWithProviders(<ChatWidget />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open chat' }));
+    expect(screen.getByRole('dialog', { name: chatConfig.botName })).toBeInTheDocument();
+  });
+
+  it('keeps the conversation when the popup is closed and opened again', async () => {
+    renderPage();
+    type('Xin chào');
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    await screen.findByText('Chào bạn!');
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open chat' }));
+    expect(screen.getByText('Chào bạn!')).toBeInTheDocument();
+  });
+
   it('shows the welcome message and suggestions before the first message', () => {
     renderPage();
     expect(screen.getByText(chatConfig.welcomeMessage)).toBeInTheDocument();

@@ -11,3 +11,14 @@ export const booleanQuerySchema = z
   .enum(['true', 'false'])
   .optional()
   .transform((value) => value === 'true');
+
+/** Optional filter flag: `'true'` → true, `'false'` → false, missing → no filter. */
+export const optionalBooleanQuerySchema = z
+  .enum(['true', 'false'])
+  .optional()
+  .transform((value) => (value === undefined ? undefined : value === 'true'));
+
+/** `{ ids: [...] }` body for bulk actions (at most 100 ids at once). */
+export const bulkIdsSchema = z.object({
+  ids: z.array(objectIdSchema).min(1, 'Select at least one item').max(100, 'At most 100 items at once')
+});
