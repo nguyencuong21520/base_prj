@@ -32,7 +32,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/mongodb-binaries
-          key: mongodb-binaries-${{ runner.os }}
+          # Tied to the lockfile: a mongodb-memory-server upgrade changes the mongod
+          # version, and a fixed key would keep restoring the old binary forever.
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('BE/package-lock.json') }}
 
       - run: npm ci
 
@@ -86,7 +88,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/mongodb-binaries
-          key: mongodb-binaries-${{ runner.os }}
+          # Tied to the lockfile: a mongodb-memory-server upgrade changes the mongod
+          # version, and a fixed key would keep restoring the old binary forever.
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('BE/package-lock.json') }}
 
       - run: npm ci --prefix BE
       - run: npm ci --prefix FE

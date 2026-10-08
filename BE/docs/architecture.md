@@ -154,6 +154,7 @@ All API routes are under `/api`. Health check: `GET /health` → `{ ok: true }`.
 ## Testing
 
 - `tests/unit` — pure functions and middlewares. `tests/integration` — real app over HTTP with an in-memory MongoDB.
+  The mongod binary is downloaded once in `tests/setup/download-mongod.ts` (Vitest `globalSetup`) before the parallel workers start; each file then starts its own mongod.
 - Use `api()` from `tests/helpers/api.ts` (binds to 127.0.0.1; `request(app)` can hit other local servers on macOS). For a custom router use `serve(app)`.
 - `createUser({ role, loginOtpEnabled, ... })` + `bearerFor(user)` from `tests/helpers/user-factory.ts`. Emails: `tests/helpers/email-outbox.ts`; Cloudinary: `tests/helpers/cloudinary-recorder.ts`.
 - See `tests/integration/notes.test.ts` for CRUD, ownership, pagination and validation cases.

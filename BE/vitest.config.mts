@@ -20,10 +20,12 @@ export default defineConfig({
       CLOUDINARY_API_KEY: 'test-key',
       CLOUDINARY_API_SECRET: 'test-secret'
     },
+    globalSetup: ['./tests/setup/download-mongod.ts'],
     setupFiles: ['./tests/setup/mock-external-services.ts', './tests/setup/in-memory-database.ts'],
     testTimeout: 20000,
-    // First run may download the mongod binary used by mongodb-memory-server.
-    hookTimeout: 120000,
+    // The mongod binary is downloaded once in globalSetup, so starting it per file
+    // is quick. A short timeout makes a broken start fail fast instead of hanging.
+    hookTimeout: 30000,
     restoreMocks: true
   }
 });
