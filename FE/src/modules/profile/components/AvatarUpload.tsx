@@ -31,9 +31,8 @@ export const AvatarUpload = ({ currentAvatarUrl, userInitials = '??', onUploadSu
 
     setUploading(true);
     try {
-      const res = await profileApi.uploadAvatar(file);
-      const newUrl = (res.data as { avatarUrl: string }).avatarUrl;
-      onUploadSuccess(newUrl);
+      const { avatarUrl } = await profileApi.uploadAvatar(file);
+      onUploadSuccess(avatarUrl);
       toast.success('Avatar updated successfully.');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'Failed to upload avatar.'));
