@@ -3,6 +3,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
+    // Only source tests; a stale `build/` folder must never be picked up.
+    include: ['tests/**/*.test.ts'],
     // Injected before any module loads so `src/config/env.ts` (which throws on
     // missing required vars) can be imported safely inside tests.
     env: {
