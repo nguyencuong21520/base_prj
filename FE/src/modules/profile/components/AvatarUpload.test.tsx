@@ -39,7 +39,7 @@ const selectFile = (input: HTMLInputElement, file: File) =>
   fireEvent.change(input, { target: { files: [file] } });
 
 beforeEach(() => {
-  uploadAvatar.mockReset().mockResolvedValue({ data: { avatarUrl: NEW_URL } });
+  uploadAvatar.mockReset().mockResolvedValue({ avatarUrl: NEW_URL });
   toastError.mockReset();
   toastSuccess.mockReset();
 });
